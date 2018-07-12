@@ -2,6 +2,7 @@
 #include <windows.h>
 #include <opencv2/imgproc.hpp>
 #include <opencv2/opencv.hpp>
+#include <opencv2/imgcodecs.hpp>
 using namespace std;
 using namespace cv;
 
@@ -59,8 +60,21 @@ Mat hwnd2mat(HWND hwnd)
 void GetWindow()
 {
     HWND hDesktop = ::GetDesktopWindow();
-	Mat matDesk = hwnd2mat(hDesktop);
-    imwrite("a.png", matDesk);
+	Mat matSrc= hwnd2mat(hDesktop);
+    imwrite("a.png", matSrc);
+    Mat matTmpl = imread("icon.png");
+    
+    Mat matRet;
+    matRet.create(matSrc.rows - matTmpl.rows + 1, matSrc.cols - matTmpl.cols + 1, CV_32FC1);
+    matchTemplate(matSrc, matTmpl, matRet,TM_SQDIFF,0); 
+    normalize( matRet, matRet, 0, 1, NORM_MINMAX, -1, Mat() );
+	double minVal; double maxVal; Point minLoc; Point maxLoc;
+	Point matchLoc;
+	minMaxLoc( matRet, &minVal, &maxVal, &minLoc, &maxLoc, Mat() );
+	matchLoc = minLoc;
+    
+
+
 #if 0
     HWND hWinIter = ::GetWindow(hDesktop,GW_CHILD);
     char sBuff[256] = {0};
