@@ -62,16 +62,16 @@ void GetWindow()
     HWND hDesktop = ::GetDesktopWindow();
 	Mat matSrc= hwnd2mat(hDesktop);
     imwrite("a.png", matSrc);
-    Mat matTmpl = imread("icon.png");
+    //Mat matTmpl = imread("icon.png");
     
-    Mat matRet;
-    matRet.create(matSrc.rows - matTmpl.rows + 1, matSrc.cols - matTmpl.cols + 1, CV_32FC1);
-    matchTemplate(matSrc, matTmpl, matRet,TM_SQDIFF,0); 
-    normalize( matRet, matRet, 0, 1, NORM_MINMAX, -1, Mat() );
-	double minVal; double maxVal; Point minLoc; Point maxLoc;
-	Point matchLoc;
-	minMaxLoc( matRet, &minVal, &maxVal, &minLoc, &maxLoc, Mat() );
-	matchLoc = minLoc;
+    //Mat matRet;
+    //matRet.create(matSrc.rows - matTmpl.rows + 1, matSrc.cols - matTmpl.cols + 1, CV_32FC1);
+    //matchTemplate(matSrc, matTmpl, matRet,TM_SQDIFF,0); 
+    //normalize( matRet, matRet, 0, 1, NORM_MINMAX, -1, Mat() );
+	//double minVal; double maxVal; Point minLoc; Point maxLoc;
+	//Point matchLoc;
+	//minMaxLoc( matRet, &minVal, &maxVal, &minLoc, &maxLoc, Mat() );
+	//matchLoc = minLoc;
     
 
 
@@ -117,7 +117,6 @@ void MoveCursor()
 
 int main()
 {
-    Sleep(1000);
 	GetWindow();
     return 0;
 }
