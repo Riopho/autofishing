@@ -60,7 +60,7 @@ void TemplateMatch::Update()
     _matCurWindow = cv::imread(".//pic//src.png", cv::IMREAD_COLOR);
 }
 
-cv::Point TemplateMatch::GetMatchPoint(const cv::Mat &matTmpl)
+cv::Point TemplateMatch::GetMatchPoint(const cv::Mat &matTmpl, double dThreshHold)
 {
   int result_cols =  _matCurWindow.cols - matTmpl.cols + 1;
   int result_rows = _matCurWindow.rows - matTmpl.rows + 1;
@@ -74,12 +74,19 @@ cv::Point TemplateMatch::GetMatchPoint(const cv::Mat &matTmpl)
 
   if( _iMatchMethod == cv::TM_SQDIFF || _iMatchMethod == cv::TM_SQDIFF_NORMED )
   { 
+      if (minVal > dThreshHold)
+      {
+         return matchLoc; 
+      }
       matchLoc = minLoc; 
   }
   else
   { 
       matchLoc = maxLoc;
   }
+  
+  matchLoc.x += matTmpl.cols / 2;
+  matchLoc.y += matTmpl.rows / 2;
 
   return matchLoc;
 }

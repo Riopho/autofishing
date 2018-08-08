@@ -29,7 +29,7 @@ class TemplateMatch
         void Update();
 
         //获取屏幕上最匹配当前模式的点
-        cv::Point GetMatchPoint(const cv::Mat &matTmpl);
+        cv::Point GetMatchPoint(const cv::Mat &matTmpl, double dThreshHold = 0);
 
     private:
         static TemplateMatch* _instance;

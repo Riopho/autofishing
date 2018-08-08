@@ -1,23 +1,62 @@
+#include "Mouse.h"
 #include "TemplateMatch.h"
-
-void MoveCursor(int x, int y)
-{
-    ::INPUT stMouseIn;
-    stMouseIn.type = INPUT_MOUSE;
-    stMouseIn.mi.dx = 65535 / 1980 * x;
-    stMouseIn.mi.dy = 65535 / 1080* y;
-    stMouseIn.mi.dwFlags = MOUSEEVENTF_MOVE | MOUSEEVENTF_ABSOLUTE;
-    stMouseIn.mi.time = 0;
-    ::SendInput(1, &stMouseIn, sizeof(stMouseIn));
-}
 
 int main()
 {
     TemplateMatch* pTmplMatch = TemplateMatch::Instance();
-    cv::Mat matQQIcon = cv::imread("./pic/QQ.png", cv::IMREAD_COLOR);
-    pTmplMatch->Update();
-    cv::Point pointQQ = pTmplMatch->GetMatchPoint(matQQIcon);
-    MoveCursor(pointQQ.x + matQQIcon.cols / 2, pointQQ.y + matQQIcon.rows/2);
+    cv::Mat matQuestIcon = cv::imread("./pic/quest_icon.png", cv::IMREAD_COLOR);
+    cv::Mat matTrigger= cv::imread("./pic/trigger2.png", cv::IMREAD_COLOR);
+    cv::Mat matTapToContinue = cv::imread("./pic/tap_to_continue.png", cv::IMREAD_COLOR);
+    cv::Mat matUse = cv::imread("./pic/use.png", cv::IMREAD_COLOR);
+    cv::Mat matNeedLevelUp = cv::imread("./pic/need_level_up.png", cv::IMREAD_COLOR);
+
+    while(1)
+    {
+        Sleep(300);
+        pTmplMatch->Update();
+        cv::Point pointQQ = pTmplMatch->GetMatchPoint(matTapToContinue, 1e+08);
+        if ((pointQQ.x + pointQQ.y) != 0)
+        {
+            Mouse::MoveTo(pointQQ.x, pointQQ.y);
+            Mouse::Click();
+            continue;
+        }
+
+        pointQQ = pTmplMatch->GetMatchPoint(matUse, 4e+07);
+        if ((pointQQ.x + pointQQ.y) != 0)
+        {
+            Mouse::MoveTo(pointQQ.x, pointQQ.y);
+            Mouse::Click();
+            continue;
+        }
+
+        pointQQ = pTmplMatch->GetMatchPoint(matTrigger, 1e+08);
+        if ((pointQQ.x + pointQQ.y) != 0)
+        {
+            Mouse::MoveTo(pointQQ.x, pointQQ.y + 100);
+            Mouse::Click();
+            continue;
+        }
+
+        int iQuestOffset = 100;
+        pointQQ = pTmplMatch->GetMatchPoint(matNeedLevelUp, 3e+07);
+        if ((pointQQ.x + pointQQ.y) != 0)
+        {
+            iQuestOffset = 200;
+        }
+
+        pointQQ = pTmplMatch->GetMatchPoint(matQuestIcon, 1e+08);
+        if ((pointQQ.x + pointQQ.y) != 0)
+        {
+            Mouse::MoveTo(pointQQ.x, pointQQ.y + iQuestOffset);
+            Mouse::Click();
+        }
+    }
+
+    //pTmplMatch->Update();
+    //cv::Point pointQQ = pTmplMatch->GetMatchPoint(matQuestIcon);
+    //Mouse::MoveTo(pointQQ.x, pointQQ.y + 100);
+    //Mouse::Click();
 
     return 0;
 }
