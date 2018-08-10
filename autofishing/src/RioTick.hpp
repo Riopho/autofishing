@@ -26,7 +26,7 @@ class RioTick : public singleton<RioTick>
         {
             std::shared_ptr<TIMER> pTimer(new TIMER(_io, boost::posix_time::seconds(iSecond)));
             int iTimerID = _iTimerCount + 1;
-            WHANDLER *wHandler = new WHANDLER([this, handler, iSecond, wHandler, pTimer, iTimerID](const boost::system::error_code&)
+            WHANDLER *wHandler = new WHANDLER([this, handler, iSecond, pTimer, iTimerID](const boost::system::error_code&)
             {
                 (*handler)();
                 pTimer->expires_at(pTimer->expires_at() + boost::posix_time::seconds(iSecond));

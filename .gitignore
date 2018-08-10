@@ -1,1 +1,5 @@
-src.png
+*.png
+autofishing/bin
+autofishing/build
+
+

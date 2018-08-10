@@ -1,3 +1,5 @@
+#if 0
+#include "RioLog.h"
 #include "Mouse.h"
 #include "TemplateMatch.h"
 
@@ -10,6 +12,7 @@ int main()
     cv::Mat matUse = cv::imread("./pic/use.png", cv::IMREAD_COLOR);
     cv::Mat matNeedLevelUp = cv::imread("./pic/need_level_up.png", cv::IMREAD_COLOR);
 
+#if 0
     while(1)
     {
         Sleep(300);
@@ -52,12 +55,15 @@ int main()
             Mouse::Click();
         }
     }
-
+#endif
     //pTmplMatch->Update();
     //cv::Point pointQQ = pTmplMatch->GetMatchPoint(matQuestIcon);
     //Mouse::MoveTo(pointQQ.x, pointQQ.y + 100);
     //Mouse::Click();
 
+    LOG_DBG <<"TEST DEBUG LOG";
+    LOG_ERROR<<"TEST ERROR LOG";
+    LOG_INFO<<"TEST INFO LOG";
     return 0;
 }
-
+#endif

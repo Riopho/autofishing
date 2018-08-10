@@ -1,3 +1,4 @@
 autofishing版本日志
 20180707 14:27 技术选型：opencv作为图形识别的第三方库,tesseract作为ocr工具设想实现可拓展地基于图形识别的自动化挂机工具，自动完成游戏中繁琐的自动化部分，设想可支持xml配置自动化流程, 使用behaviac作为行为树的工具。
 ver 0.0.1 识别屏幕像素rgb
+ver 1.0.0 可半自动操作MY，添加了日志类和TICK类，OPENCV使用模板匹配，待加入behaviac。

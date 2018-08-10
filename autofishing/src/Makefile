@@ -1,4 +1,4 @@
-MyDemo:Mouse.h Mouse.cpp TemplateMatch.h TemplateMatch.cpp TestTmpl.cpp
-	g++ -g Mouse.h Mouse.cpp TemplateMatch.h TemplateMatch.cpp TestTmpl.cpp -lgdi32 `pkg-config --cflags --libs opencv` -std=c++11 -o MyDemo
+MyDemo:Mouse.h Mouse.cpp TemplateMatch.h TemplateMatch.cpp TestTmpl.cpp RioLog.h
+	g++ -g RioLog.h Mouse.h Mouse.cpp TemplateMatch.h TemplateMatch.cpp TestTmpl.cpp -lgdi32 `pkg-config --cflags --libs opencv` -lboost_log -lboost_log_setup -std=c++11 -o MyDemo
 clean:
 	rm -rf TestTmpl
