@@ -1,6 +1,6 @@
 #ifndef _RIO_LOG_
 #define _RIO_LOG_
-#define BOOST_LOG_DYN_LINK 1
+//#define BOOST_LOG_DYN_LINK 1
 #include "singleton.h"
 #include <ctime>
 #include <cstddef>
@@ -38,7 +38,7 @@
 #define LOG_INFO\
     BOOST_LOG_SEV(RioLog::Instance()->GetLogger(), info) <<" ["<<__FILE__<<":"<<__LINE__<<"] "
 
-#define LOG_ERROR\
+#define LOG_ERR\
     BOOST_LOG_SEV(RioLog::Instance()->GetLogger(), error) <<"["<<__FILE__<<":"<<__LINE__<<"] "
 
 namespace logging = boost::log;
@@ -57,22 +57,22 @@ enum severity_level
 };
 
 BOOST_LOG_ATTRIBUTE_KEYWORD(severity, "Severity", severity_level)
-std::ostream& operator<< (std::ostream& strm, severity_level level)
-{
-    static const char* strings[] =
-    {
-        "DEBUG",
-        "INFO",
-        "ERROR"
-    };
+// std::ostream& operator<< (std::ostream& strm, severity_level level)
+// {
+//     static const char* strings[] =
+//     {
+//         "DEBUG",
+//         "INFO",
+//         "ERROR"
+//     };
 
-    if (static_cast< std::size_t >(level) < sizeof(strings) / sizeof(*strings))
-        strm << strings[level];
-    else
-        strm << static_cast< int >(level);
+//     if (static_cast< std::size_t >(level) < sizeof(strings) / sizeof(*strings))
+//         strm << strings[level];
+//     else
+//         strm << static_cast< int >(level);
 
-    return strm;
-}
+//     return strm;
+// }
 
 typedef src::severity_logger< severity_level > SLG;
 class RioLog : public singleton<RioLog>

@@ -1,32 +1,29 @@
 #include "RioLog.hpp"
 #include "RioTick.hpp"
 #include <functional>
+#include "opencv2/imgcodecs.hpp"
+#include "opencv2/highgui.hpp"
+#include "opencv2/imgproc.hpp"
+#include <windows.h>
+#include <vector>
+#include "TemplateMatch.h"
+#include "Mouse.h"
+#include "State.h"
+#include <numeric>
+#include <cstdlib>
 
-void log()
+int main(int argc, char *argv[])
 {
-    LOG_DBG << "Test tick 1s.";
-    return;
-}
-
-void log2()
-{
-    LOG_DBG << "Test tick 2s.";
-    return;
-}
-
-int main()
-{
-    RioLog::Instance()->Init();
-    RioTick::Instance()->DeclareTick(log,1);
-    RioTick::Instance()->DeclareTick(log2,2);
-    RioTick::Instance()->Run();
-
-    //TemplateMatch* pTmplMatch = TemplateMatch::Instance();
-    //cv::Mat matQQIcon = cv::imread("./pic/QQ.png", cv::IMREAD_COLOR);
-    //pTmplMatch->Update();
-    //cv::Point pointQQ = pTmplMatch->GetMatchPoint(matQQIcon);
-    //MoveCursor(pointQQ.x + matQQIcon.cols / 2, pointQQ.y + matQQIcon.rows/2);
-
-    return 0;
+	if (argc == 2) 
+	{
+		TemplateMatch::Instance()->MaxFightNum = atoi(argv[1]);		
+	}
+	else
+	{
+		TemplateMatch::Instance()->MaxFightNum = 10;		
+	}
+	LOG_ERR << "Max Num: " << TemplateMatch::Instance()->MaxFightNum;
+    State state;
+    state.start();
 }
 

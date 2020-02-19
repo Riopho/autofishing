@@ -1,4 +1,57 @@
 #include "TemplateMatch.h"
+#include "Mouse.h"
+#include "boost/filesystem.hpp"
+using namespace boost::filesystem;
+
+using namespace std;
+
+bool Click(string FilePath)
+ {
+	 cv::Point Point;
+	 LOG_ERR << "Click: " << FilePath ;
+	 if (Match(FilePath, Point)) 
+	 {
+		 Mouse::MoveTo(Point.x, Point.y);
+		 Mouse::Click();
+		 return true;
+	 }
+
+	 return false;
+ }
+
+bool Match(string FileName)
+{
+	cv::Point MatchPoint;
+	return TemplateMatch::Instance()->Match(FileName, MatchPoint);
+}
+
+bool Match(string FileName, cv::Point &MatchPoint)
+{
+	return TemplateMatch::Instance()->Match(FileName, MatchPoint);
+}
+
+void Wait(string FileName)
+{
+	do
+	{
+		LOG_ERR << "waiting: " << FileName;
+		Sleep(1000);
+	} while (!Match(FileName));
+	LOG_ERR << FileName << " arrived.";
+	return;
+}
+
+void WaitAndClick(string FileName)
+{
+	do
+	{
+		LOG_ERR << "waiting: " << FileName;
+		Sleep(1000);
+	} while (!Match(FileName));
+	Click(FileName);
+	LOG_ERR << FileName << " Clicked.";
+	return;
+}
 
 TemplateMatch* TemplateMatch::_instance = NULL;
 cv::Mat TemplateMatch::_HwndToMat(HWND hwnd)
@@ -53,41 +106,94 @@ cv::Mat TemplateMatch::_HwndToMat(HWND hwnd)
     return src;
 }
 
-void TemplateMatch::Update()
+void TemplateMatch::_Update()
 {
     HWND hDesktop = ::GetDesktopWindow();
     _matCurWindow = _HwndToMat(hDesktop);
-    _matCurWindow = cv::imread(".//pic//src.png", cv::IMREAD_COLOR);
+    _matCurWindow = cv::imread("./pic/src.png", cv::IMREAD_GRAYSCALE);
+	
+	LoadPicImpl("./pic/src.png");
 }
 
-cv::Point TemplateMatch::GetMatchPoint(const cv::Mat &matTmpl, double dThreshHold)
+bool TemplateMatch::Match(std::string FilePath, cv::Point &MatchPoint)
 {
-  int result_cols =  _matCurWindow.cols - matTmpl.cols + 1;
-  int result_rows = _matCurWindow.rows - matTmpl.rows + 1;
-  cv::Mat result;
-  result.create(result_rows, result_cols, CV_8UC4);
-  matchTemplate( _matCurWindow, matTmpl, result, _iMatchMethod);
+	_Update();
+	vector<vector<cv::DMatch> > Matches;
+	vector<cv::DMatch> GoodMatches;
+	m_pMatcher->knnMatch(m_Descs[FilePath], m_Descs["./pic/src.png"], Matches, 2);
 
-  double minVal; double maxVal; cv::Point minLoc; cv::Point maxLoc;
-  cv::Point matchLoc;
-  minMaxLoc( result, &minVal, &maxVal, &minLoc, &maxLoc, cv::Mat());
+	cv::Point sum;
+    for (int i = 0; i < Matches.size(); i++)
+    {
+        if (Matches[i][0].distance < 0.6 * Matches[i][1].distance)
+        {
+            GoodMatches.push_back(Matches[i][0]);
+			sum.x +=  m_KeyPoints["./pic/src.png"][Matches[i][0].trainIdx].pt.x;
+			sum.y +=  m_KeyPoints["./pic/src.png"][Matches[i][0].trainIdx].pt.y;
+		} 
+	}
 
-  if( _iMatchMethod == cv::TM_SQDIFF || _iMatchMethod == cv::TM_SQDIFF_NORMED )
-  { 
-      if (minVal > dThreshHold)
-      {
-         return matchLoc; 
-      }
-      matchLoc = minLoc; 
-  }
-  else
-  { 
-      matchLoc = maxLoc;
-  }
-  
-  matchLoc.x += matTmpl.cols / 2;
-  matchLoc.y += matTmpl.rows / 2;
+	LOG_ERR << FilePath << ": [ " << GoodMatches.size() << " / " << m_KeyPoints[FilePath].size() << " ] .";
+	if (GoodMatches.size() < 5) 
+	{
+		LOG_ERR << FilePath << ": no good match .";
+		return false;
+	}
+	
+	cv::Point avg;
+	avg.x = sum.x / GoodMatches.size();
+	avg.y = sum.y / GoodMatches.size();
 
-  return matchLoc;
+	MatchPoint = avg;
+	
+	LOG_ERR << FilePath << ", good match, location :" << avg;
+	
+	return true;
+}
+
+void TemplateMatch::LoadPicImpl(std::string FileName)
+{
+	cv::Mat mat = cv::imread(FileName, cv::IMREAD_GRAYSCALE);
+	std::vector<cv::KeyPoint> KeyPoints;
+	m_pOrb->detect(mat, KeyPoints);
+	if (KeyPoints.size() == 0 || mat.empty()) 
+	{
+		LOG_ERR << FileName << ": has no feature point!";
+		return;
+	}
+
+	LOG_ERR << FileName  << ": loaded , features : " << KeyPoints.size();
+	cv::Mat Desc;
+	m_pOrb->compute(mat, KeyPoints, Desc);
+	if (Desc.type() != CV_32F) 
+	{
+		Desc.convertTo(Desc, CV_32F);
+	}
+
+	if (m_Descs.find(FileName) != m_Descs.end()) 
+	{
+		m_Descs.erase(FileName);
+		m_KeyPoints.erase(FileName);
+	}
+	
+	m_Descs.insert(std::pair<string, cv::Mat>(FileName, Desc));
+	m_KeyPoints.insert(std::pair<string, vector<cv::KeyPoint> >(FileName, KeyPoints));
+}
+
+void TemplateMatch::LoadPic()
+{
+	path pic("./pic/");
+	directory_iterator end;
+	for (directory_iterator iter(pic); iter != end; ++iter)
+	{
+		string path = iter->path().string();
+		if (path.find("png") != std::string::npos) 
+		{
+			std::size_t pos = path.find("\\");
+			std::string FileName = path.substr(pos + 1);
+			LoadPicImpl("./pic/" + FileName);
+		}
+	}
+	return;
 }
 
