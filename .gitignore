@@ -4,3 +4,6 @@ autofishing/build
 *.exe
 
 
+
+.vc
+.vs
