@@ -35,6 +35,10 @@ public:
 	
 	bool Match(std::string FilePath, cv::Point &MatchPoint);
 	int MaxFightNum;
+	
+	//把窗口转换成mat
+	cv::Mat _HwndToMat(HWND hwnd);
+
 private:
 	static TemplateMatch* _instance;
 	void LoadPic();
@@ -47,8 +51,6 @@ private:
 	//匹配模式
 	int _iMatchMethod;
 
-	//把窗口转换成mat
-	cv::Mat _HwndToMat(HWND hwnd);
 
 	//保存当前窗口的mat
 	cv::Mat _matCurWindow;

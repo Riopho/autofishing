@@ -61,21 +61,7 @@ void GetWindow()
 {
     HWND hDesktop = ::GetDesktopWindow();
 	Mat matSrc= hwnd2mat(hDesktop);
-    imwrite("a.png", matSrc);
-    //Mat matTmpl = imread("icon.png");
-    
-    //Mat matRet;
-    //matRet.create(matSrc.rows - matTmpl.rows + 1, matSrc.cols - matTmpl.cols + 1, CV_32FC1);
-    //matchTemplate(matSrc, matTmpl, matRet,TM_SQDIFF,0); 
-    //normalize( matRet, matRet, 0, 1, NORM_MINMAX, -1, Mat() );
-	//double minVal; double maxVal; Point minLoc; Point maxLoc;
-	//Point matchLoc;
-	//minMaxLoc( matRet, &minVal, &maxVal, &minLoc, &maxLoc, Mat() );
-	//matchLoc = minLoc;
-    
 
-
-#if 0
     HWND hWinIter = ::GetWindow(hDesktop,GW_CHILD);
     char sBuff[256] = {0};
     while(hWinIter != NULL)
@@ -88,21 +74,14 @@ void GetWindow()
            ::SwitchToThisWindow(hWinIter, false);
            break;
        }
-       
-       //cout << sBuff <<endl; 
-       //找到特定窗口
        hWinIter = ::GetNextWindow(hWinIter, GW_HWNDNEXT);
     }
+	
     RECT rcClient;
     GetClientRect(hDesktop, &rcClient);
     HDC hDesktopDc = ::GetDC(hDesktop);
     HBITMAP hmScreen= ::CreateCompatibleBitmap(hDesktopDc, rcClient.right - rcClient.left, rcClient.top - rcClient.bottom);
-	
-     
-    COLORREF colREf = ::GetPixel(hDesktopDc, 66,77);
-    //cout << hex <<colREf << endl;
-#endif
-}
+ }
 
 void MoveCursor()
 {

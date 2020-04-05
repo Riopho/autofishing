@@ -14,9 +14,11 @@
 #include "RioLog.hpp"
 #include "TemplateMatch.h"
 
+
 #define FSM_ON_ENTRY template <class Event,class FSM> void on_entry(Event const& ev,FSM& fsm)
 #define FSM_ON_EXIT template <class Event,class FSM> void on_exit(Event const& ev,FSM& fsm)
 #define FSM_STATE(x) struct x : public msm::front::state<> 
+#define NLOG_ERR LOG_ERR << "No. "<< fsm.FightCounts << ", buy num: " << fsm.BuyPowerCounts 
 
 namespace msm = boost::msm;
 namespace mpl = boost::mpl;
@@ -27,9 +29,8 @@ struct Event_Tag{};
 struct Event_Type {};
 struct Event_Level {};
 struct Event_Begin {};
-struct Event {};
 struct Event_Lack {};
-struct Event_a {};
+struct Event_any {};
 
 struct State_: public msm::front::state_machine_def<State_>
 {
@@ -39,7 +40,7 @@ struct State_: public msm::front::state_machine_def<State_>
     {
         FSM_ON_ENTRY  //unknown state 
         {
-			LOG_ERR << "Unknown state, pending...";
+			NLOG_ERR << "Unknown state, pending...";
 			Sleep(3000);
 			if (Match("./pic/begin1.png")) 
 			{
@@ -53,7 +54,7 @@ struct State_: public msm::front::state_machine_def<State_>
     {
         FSM_ON_ENTRY  //main ui
         {
-			LOG_ERR << "Enter main UI.";
+			NLOG_ERR << "Enter main UI.";
 			Click("./pic/main.png");
 			fsm.process_event(Event());
         }
@@ -63,7 +64,7 @@ struct State_: public msm::front::state_machine_def<State_>
     {
         FSM_ON_ENTRY  //choose big tag
         {
-			LOG_ERR << "Choose tag."; 
+			NLOG_ERR << "Choose tag."; 
         }
     };
 
@@ -71,7 +72,7 @@ struct State_: public msm::front::state_machine_def<State_>
     {
         FSM_ON_ENTRY  //choose small type
         {
-			LOG_ERR << "Choose type.";
+			NLOG_ERR << "Choose type.";
         }
     };
 
@@ -79,7 +80,7 @@ struct State_: public msm::front::state_machine_def<State_>
     {
         FSM_ON_ENTRY  //choose level
         {
-			LOG_ERR << "Choose level."; 
+			NLOG_ERR << "Choose level."; 
         }
     };
 
@@ -87,7 +88,7 @@ struct State_: public msm::front::state_machine_def<State_>
     {
         FSM_ON_ENTRY  
         {
-			LOG_ERR << "ReadyPressBegin."; 
+			NLOG_ERR << "ReadyPressBegin."; 
 			WaitAndClick("./pic/begin1.png");
 			Sleep(3000);
 			
@@ -99,7 +100,7 @@ struct State_: public msm::front::state_machine_def<State_>
 			
 
 
-			fsm.process_event(Event_a());
+			fsm.process_event(Event_any());
         }
     };
 
@@ -107,10 +108,10 @@ struct State_: public msm::front::state_machine_def<State_>
     {
         FSM_ON_ENTRY  
         {
-			LOG_ERR << "Lack of power,";
+			NLOG_ERR << "Lack of power,";
 			Click("./pic/right.png");
-			LOG_ERR << "Buy power, No. " << ++fsm.BuyPowerCounts;
-			fsm.process_event(Event_a());
+			NLOG_ERR << "Buy power, No. " << ++fsm.BuyPowerCounts;
+			fsm.process_event(Event_any());
         }
     };
 
@@ -118,9 +119,9 @@ struct State_: public msm::front::state_machine_def<State_>
 	{
         FSM_ON_ENTRY  
         {
-			LOG_ERR << "WaitFight.";
+			NLOG_ERR << "WaitFight.";
 			WaitAndClick("./pic/begin2.png");
-			fsm.process_event(Event_a());
+			fsm.process_event(Event_any());
         }
     };
 
@@ -128,13 +129,14 @@ struct State_: public msm::front::state_machine_def<State_>
 	{
 		FSM_ON_ENTRY
 		{
-			LOG_ERR << "Fight begin, No." <<++fsm.FightCounts;
+			NLOG_ERR << "Fight begin, No." <<++fsm.FightCounts;
 			if (fsm.FightCounts > TemplateMatch::Instance()->MaxFightNum) 
 			{
-				LOG_ERR << "All " << TemplateMatch::Instance()->MaxFightNum << " fight end.";
+				NLOG_ERR << "All " << TemplateMatch::Instance()->MaxFightNum << " fight end.";
 				fsm.stop();
 				return;
 			}
+			
 			while (1)
 			{
 				if (Match("./pic/end.png")) 
@@ -152,7 +154,7 @@ struct State_: public msm::front::state_machine_def<State_>
 			}
 			Sleep(2000);
 			Click("./pic/end.png");
-			fsm.process_event(Event_a());
+			fsm.process_event(Event_any());
 		}
 	};
 
@@ -160,15 +162,11 @@ struct State_: public msm::front::state_machine_def<State_>
 	{
 		FSM_ON_ENTRY
 		{
-			LOG_ERR << "Fight end.";
+			NLOG_ERR << "Fight end.";
 			Wait("./pic/begin1.png");
-			fsm.process_event(Event_a());
+			fsm.process_event(Event_any());
 		}
 	};
-
-
-
-
 
     typedef Unknown initial_state;
 
@@ -184,17 +182,17 @@ struct State_: public msm::front::state_machine_def<State_>
 		//	_row   < Unknown, Event_Tag, ChooseTag>,
 		//_row   < Unknown, Event_Type, ChooseType>,
 		//_row   < Unknown, Event_Level, ChooseLevel>,
-		_row   < Unknown, Event_Begin, PressBegin>,
 		//_row   < Main, Event, ChooseTag>,
 		//_row   < ChooseTag, Event, ChooseType>,
 		//_row   < ChooseType, Event, ChooseLevel>,
 		//_row   < ChooseLevel, Event, PressBegin>,
+		_row   < Unknown, Event_Begin, PressBegin>,
 		_row   < PressBegin, Event_Lack, LackPower>,
-		_row   < LackPower, Event_a, PressBegin>,
-		_row   < PressBegin, Event_a, WaitFight>,
-		_row   < WaitFight, Event_a,Fighting>,
-		_row   < Fighting, Event_a, FightEnd>,
-		_row < FightEnd, Event_a, Unknown>
+		_row   < LackPower, Event_any, PressBegin>,
+		_row   < PressBegin, Event_any, WaitFight>,
+		_row   < WaitFight, Event_any,Fighting>,
+		_row   < Fighting, Event_any, FightEnd>,
+		_row < FightEnd, Event_any, Unknown>
 		>
 	{};
 };

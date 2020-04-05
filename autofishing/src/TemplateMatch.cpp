@@ -102,7 +102,11 @@ cv::Mat TemplateMatch::_HwndToMat(HWND hwnd)
     DeleteDC(hwindowCompatibleDC);
     ReleaseDC(hwnd, hwindowDC);
 
-    cv::imwrite("./pic/src.png", src);
+	if (!src.empty())
+	{
+		cv::imwrite("./pic/src.png", src);
+	}
+
     return src;
 }
 
